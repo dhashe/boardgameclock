@@ -32,8 +32,16 @@
                 const elapsed = Math.floor((now - lastTimestamp + (elapsedTimes[currentTurn] || 0)) / 1000);
                 timers[currentTurn].querySelector('.timer').textContent = formatTime(elapsed);
             }
+
             const wallclock = Math.floor((now - startTimestamp) / 1000);
-            const unpaused = Math.floor((now - startTimestamp - (elapsedTimes["Paused"] || 0)) / 1000);
+
+            let unpaused = 0;
+            if (currentTurn == "Paused") {
+                unpaused = Math.floor((lastTimestamp - startTimestamp - (elapsedTimes["Paused"] || 0)) / 1000);
+            } else {
+                unpaused = Math.floor((now - startTimestamp - (elapsedTimes["Paused"] || 0)) / 1000);
+            }
+
             document.getElementById("wallclock").textContent = `Wall-clock: ${formatTime(wallclock)}`;
             document.getElementById("unpaused").textContent = `Unpaused: ${formatTime(unpaused)}`;
             requestAnimationFrame(updateTimers);
