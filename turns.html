@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turn Order</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Turn Order</h1>
+    <div class="form-container">
+        <form id="selectNamesForm" action="clock.html" method="GET">
+            <button type="submit">Start Clock</button>
+            <div id="checkboxes"></div>
+            <input type="hidden" name="selectedNames" id="selectedNames">
+            <button type="submit">Start Clock</button>
+        </form>
+    </div>
+    <script>
+        const playerNames = new URLSearchParams(window.location.search).getAll('playerName[]');
+        const checkboxesDiv = document.getElementById('checkboxes');
+        const selectedNames = [];
+
+        const nameToLabelText= {};
+
+        function updateSelectedNames() {
+            document.getElementById('selectedNames').value = selectedNames.join(',');
+        }
+
+        playerNames.forEach((name) => {
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = name;
+            checkbox.addEventListener('change', (event) => {
+                const isChecked = event.target.checked;
+                if (isChecked) {
+                    selectedNames.push(name);
+                } else {
+                    const idx = selectedNames.indexOf(name);
+                    if (idx > -1) {
+                        selectedNames.splice(idx, 1);
+                    }
+                }
+                // Update the visual selected state
+                updateSelectedNames();
+                updateCheckboxes();
+                updateLabels();
+            });
+
+            const label_text = document.createTextNode(name);
+            nameToLabelText[name] = label_text;
+
+            label.className = 'entry';
+            label.appendChild(checkbox);
+            label.appendChild(label_text);
+            checkboxesDiv.appendChild(label);
+        });
+
+        function updateCheckboxes() {
+            document.querySelectorAll('.entry').forEach(entry => {
+                const checkbox = entry.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    entry.classList.add('selected');
+                } else {
+                    entry.classList.remove('selected');
+                }
+            });
+        }
+
+        function updateLabels() {
+            playerNames.forEach((name) => {
+                nameToLabelText[name].nodeValue = name;
+            });
+
+            for (const [idx, name] of selectedNames.entries()) {
+                nameToLabelText[name].nodeValue = `${name} (${idx+1})`;
+            }
+
+        }
+    </script>
+</body>
+</html>

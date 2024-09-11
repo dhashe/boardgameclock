@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Clock</h1>
+    <div id="wallclock" class="wallclock"></div>
+    <div id="entries"></div>
+    <div id="unpaused" class="wallclock"></div>
+    <script>
+        const entriesDiv = document.getElementById('entries');
+        let currentTurn = null;
+        let startTimestamp = 0;
+        let lastTimestamp = 0;
+        let timers = {};
+        let elapsedTimes = {};
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateTimers() {
+            const now = Date.now();
+            if (currentTurn) {
+                const elapsed = Math.floor((now - lastTimestamp + (elapsedTimes[currentTurn] || 0)) / 1000);
+                timers[currentTurn].querySelector('.timer').textContent = formatTime(elapsed);
+            }
+            const wallclock = Math.floor((now - startTimestamp) / 1000);
+            const unpaused = Math.floor((now - startTimestamp - (elapsedTimes["Paused"] || 0)) / 1000);
+            document.getElementById("wallclock").textContent = `Wall-clock: ${formatTime(wallclock)}`;
+            document.getElementById("unpaused").textContent = `Unpaused: ${formatTime(unpaused)}`;
+            requestAnimationFrame(updateTimers);
+        }
+
+        function switchTurn(name) {
+            const now = Date.now();
+            if (currentTurn) {
+                // Accumulate elapsed time for the previous turn
+                if (!elapsedTimes[currentTurn]) elapsedTimes[currentTurn] = 0;
+                elapsedTimes[currentTurn] += now - lastTimestamp;
+            }
+            currentTurn = name;
+            lastTimestamp = now;
+            if (startTimestamp == 0) {
+                startTimestamp = now;
+            }
+            
+            // Ensure the timer is visible and reset the display
+            document.querySelectorAll('.entry').forEach(entry => entry.classList.remove('active'));
+            timers[currentTurn].classList.add('active');
+        }
+
+        function createEntry(name) {
+            const div = document.createElement('div');
+            div.className = 'entry';
+            div.innerHTML = `<span class="name">${name}</span>: <span class="timer">00:00:00</span>`;
+            div.addEventListener('click', () => switchTurn(name));
+            entriesDiv.appendChild(div);
+            timers[name] = div;
+        }
+
+        function createSep() {
+            const div = document.createElement('div');
+            div.className = 'separator-bar';
+            entriesDiv.appendChild(div);
+        }
+
+        // Initialize entries from URL params
+        const params = new URLSearchParams(window.location.search);
+        const selectedNames = params.get('selectedNames').split(',');
+        createEntry("Simultaneous");
+        createSep();
+        selectedNames.forEach(name => createEntry(name));
+        createSep();
+        createEntry("Paused");
+
+        // Set initial turn and start timers
+        if (selectedNames.length > 0 || timers["Simultaneous"]) {
+            switchTurn("Simultaneous"); // Set "Simultaneous" as the initial turn
+            updateTimers(); // Start the timer updates
+        }
+    </script>
+</body>
+</html>
