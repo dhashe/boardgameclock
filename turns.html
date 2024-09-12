@@ -17,7 +17,8 @@
         </form>
     </div>
     <script>
-        const playerNames = new URLSearchParams(window.location.search).getAll('playerName[]');
+        let playerNames = new URLSearchParams(window.location.search).getAll('playerName[]');
+        playerNames = playerNames.filter(name => name != '');
         playerNames.sort();
         const checkboxesDiv = document.getElementById('checkboxes');
         const selectedNames = [];
@@ -29,10 +30,6 @@
         }
 
         playerNames.forEach((name) => {
-            if (name == '') {
-                return;
-            }
-
             const label = document.createElement('label');
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
