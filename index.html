@@ -8,26 +8,42 @@
 </head>
 <body>
     <h1>Players</h1>
-    <form id="nameForm" action="./turns.html" metho="GET">
+    <form id="nameForm" action="./turns.html" method="GET">
         <button type="button" onclick="addNameInput()">Add Another Name</button>
         <button type="submit">Submit</button>
         <div id="nameInputs">
-            <input type="text" name="playerName[]" placeholder="Enter player name"><br>
         </div>
         <button type="button" onclick="addNameInput()">Add Another Name</button>
         <button type="submit">Submit</button>
     </form>
 
     <script>
-        function addNameInput() {
+        function addNameInput(value = undefined) {
             const nameInputsDiv = document.getElementById('nameInputs');
             const newInput = document.createElement('input');
             newInput.type = 'text';
             newInput.name = 'playerName[]';
             newInput.placeholder = 'Enter player name';
+
+            if (value !== undefined) {
+                newInput.value = value;
+            }
+
             nameInputsDiv.appendChild(newInput);
             nameInputsDiv.appendChild(document.createElement('br'));
+
+            return newInput;
         }
+        
+        let playerNames = new URLSearchParams(window.location.search).getAll('playerName[]');
+        playerNames = playerNames.filter(name => name != '');
+        playerNames.sort();
+
+        playerNames.forEach((name) => {
+            addNameInput(name);
+        });
+
+        addNameInput();
     </script>
 </body>
 </html>
