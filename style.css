@@ -10,6 +10,7 @@ h1 {
     padding: 0px;
 }
 input[type="text"] {
+    font-size: 1em;
     width: calc(100% - 22px);
     padding: 20px;
     margin: 5px 0;
